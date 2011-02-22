@@ -1,0 +1,147 @@
++-----------------------+
+|	Buenos 5.1	|
++-----------------------+
+
+Why do we disable interrupts and then acquire spinlocks?
+To make sure we don't get interrupts after having acquired a lock.
+This will prevent some deadlocks and will cause a better performance.
+
+Both multikernel systems and jumps in the code in a single kernel.
+Spinlocks used to prevent other kernels from using the resource
+
++-----------------------+
+|	Buenos 5.3	|
++-----------------------+
+
+When waking up a thread in sleepq_wake the thread in sleep queue is either running or sleeping. Why can the thread still be Running?
+
+Because the sleepq_add function doesn't make the thread sleep - it merely adds the thread to the sleep queue.
+
++-----------------------+
+|	Opgave 6.11	|
++-----------------------+
+
+1 wait(S) {
+2 	while (S <= 0);
+3 	temp = S;
+4 	S = temp-1;
+5 }
+
+6 signal(S) {
+7 	temp = S;
+8 	S = temp+1;
+9 }
+
+
+Der kan komme problemer, hvis de to funktioner ikke bliver udført atomiske, da der efter linje 3 kan ske et skifte til den anden hvorved den midlertidige værdi temp ikke længere nødvendigvis er den rigtige.
+
++-----------------------+
+|	Opgave 6.19	|
++-----------------------+
+
+Hvor skal vi være opmærksom på låse?
+- Trådtabel
+- PCB
+
++-----------------------+
+|	Opgave 6.28	|
++-----------------------+
+
+Busy waiting: polling ("børn før de bliver teenagere")
+
+Sleepq: notifikation ("teenagere")
+
++-----------------------+
+|	Opgave 7.1	| (307)
++-----------------------+
+To byer er forbundet med en bro, der er en-sporet.
+Vi skal implementere en mekanisme med semaforer for at løse problemet.
+
+  P		   _____________________		   Q
+ ___		  / / / / / /|\ \ \ \ \ \		  ___
+| | \	--->	 / / / / / / | \ \ \ \ \ \ 	<---	 / | |
+o----o		+------------+------------+		o----o
+		|	     |		  |
+
+EnterBridge P -> Q:
+	while(d < 0) {
+		wait(S);
+	}
+	d++;
+	signal(S);
+
+ExitBridge P -> Q:
+	d--;
+	if (d == 0) {
+		signal(T);
+	}
+
++-----------------------+
+|	Opgave 7.2	| (307)
++-----------------------+
+Starvation free:
+
+EnterBridge P -> Q:
+	while(d < 0 && countPQ > 100) {
+		wait(S);
+	}
+	d++;
+	signal(S);
+
+ExitBridge P -> Q:
+	d--;
+	if (d == 0) {
+		signal(T);
+	}
+
++-----------------------+
+|	Opgave 7.3	| (307)
++-----------------------+
+
+P1		+--------+
+  		|  o  o  |
+P2		|        |
+		|  o  o  |
+P3		+--------+
+
+De tager hver 2 ressourcer før de er færdige.
+Der er ikke deadlocks fordi hvis vi giver hver af dem 1 ressource, så de alle står og mangler 1  ressource,
+vil den første blive afsluttet, når ressourcen er blevet givet, hvorved der pludselig er 2 ressourcer tilgængelige.
+
++-----------------------+
+|	Opgave 7.10	| (307)
++-----------------------+
+
+Banker's algoritme:
+      +-----------------+---------------+---------------+---------------+
+      |	Allocation	| Max		| Available	| Need		|
+      +-----------------+---------------+---------------+---------------+---------------+
+      |	A | B | C | D	| A | B | C | D	| A | B | C | D | A | B | C | D | Finish	|
++-----+-----------------+---------------+---------------+---------------+---------------+
+| P0: | 0 | 0 | 1 | 2	| 0 | 0 | 1 | 2	| 1 | 5 | 2 | 0	| 0 | 0 | 0 | 0	| T		|
++-----+-----------------+---------------+---------------+---------------+---------------+
+| P1: | 1 | 0 | 0 | 0	| 1 | 7 | 5 | 0	| Work		| 0 | 7 | 5 | 0	| T		|
++-----+-----------------+---------------+---------------+---------------+---------------+
+| P2: | 1 | 3 | 5 | 4	| 2 | 3 | 5 | 6	| A | B | C | D	| 1 | 0 | 0 | 0	| T		|
++-----+-----------------+---------------+---------------+---------------+---------------+
+| P3: | 0 | 6 | 3 | 2	| 0 | 6 | 5 | 2	| 3 |14 |12 |12	| 0 | 0 | 2 | 0	| T		|
++-----+-----------------+---------------+---------------+---------------+---------------+
+| P4: | 0 | 0 | 1 | 4	| 0 | 6 | 5 | 6	|		| 0 | 6 | 4 | 2	| T		|
++-----+-----------------+---------------+---------------+---------------+---------------+
+
+Resource request algoritme: Det gik fint :)
+      +-----------------+---------------+---------------+---------------+
+      |	Allocation	| Max		| Available	| Need		|
+      +-----------------+---------------+---------------+---------------+
+      |	A | B | C | D	| A | B | C | D	| A | B | C | D | A | B | C | D |
++-----+-----------------+---------------+---------------+---------------+
+| P0: | 0 | 0 | 1 | 2	| 0 | 0 | 1 | 2	| 1 | 1 | 2 | 0	| 0 | 0 | 0 | 0	|
++-----+-----------------+---------------+---------------+---------------+
+| P1: | 1 | 4 | 2 | 0	| 1 | 7 | 5 | 0	| Request	| 0 | 3 | 3 | 0	|
++-----+-----------------+---------------+---------------+---------------+
+| P2: | 1 | 3 | 5 | 4	| 2 | 3 | 5 | 6	| A | B | C | D	| 1 | 0 | 0 | 0	|
++-----+-----------------+---------------+---------------+---------------+
+| P3: | 0 | 6 | 3 | 2	| 0 | 6 | 5 | 2	| 0 | 4 | 2 | 0	| 0 | 0 | 2 | 0	|
++-----+-----------------+---------------+---------------+---------------+
+| P4: | 0 | 0 | 1 | 4	| 0 | 6 | 5 | 6	|		| 0 | 6 | 4 | 2	|
++-----+-----------------+---------------+---------------+---------------+
