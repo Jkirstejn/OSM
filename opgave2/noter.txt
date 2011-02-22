@@ -1,0 +1,156 @@
+Vores program kan kun køre Halt.
+
+Systemet siger så shut down ish.
+
+Hvis det siger dette, tyder det på at YAMS er sat rigtigt op.
+
+Halt bliver eksikveret så snart operativsystemet er sat op.
+
+--------------------------------------------------------------
+
+Vi skal lave et systemkald der kan eksekvere et program.
+
+Vi vil altså tillade at flere programmer skal kunne køre, efter halt. De skal
+faktisk kunne spawne nye.
+
+Kernen sørger for at vi kan have flere tråde kørende samtidig. Men har ikke
+wrappet det så vi kan køre processorer samtidig.
+
+Vi skal altså have en metode at smide en processor oven på en kernetråd.
+
+Vi har vedtaget at vi kører en 1 til 1 strategy, mellem brugertråde og
+kernetråde. Intet fancy.
+
+Processtilstande:
+Konceptet er lidt det samme som side 103.
+
+Vi skal have en måde at indikere om processen er levende eller død. F.eks med
+en int:
+
+Check libc.h (denne fil, indeholder alle hjælpefunktioner).
+
+"..." betyder at man i teorien kan smide uendelig mange parametre med.
+
+Vi har fået udleveret et HW (hello world) program, som vi skal ligge i tests
+mappen, og så smide dem ind på harddisken "store.file", eller "fYAMS harddisk"
+(ude i buenosmappen). Bruger denne harddiskfil til at gemme de rå data.
+
+Harddisken kan vi pille ved ved at bruge "util/tfstool" uden argumenter, så
+skriver den hvordan man bruger programmet. Der er intet hieraki på harddisken.
+
+F.eks kan man skrive "util/tfstool list store.file", for at se hvad der ligger
+på harddisken.
+
+For at slette en fil:
+"util/tfstool delete store.file exec"
+
+For at smide den ind igen:
+"util/tfstool write store.file test/exec exec"
+
+Hvis man allokerer noget statisk skriver man:
+process_struct p_table[PROCESS_MAX_ENTRIES];
+
+Man kæder en process sammen med en tråd ved:
+Hver tråd peger på den process den appender med.
+
+Hver gang man laver en ny process får man en ny tråd til at pege på den. -1
+betyder at processen ingen tråd har.
+
+Process_init:
+Gennemløb vores processtabel og check at alle processor er frie.
+Foregår inde i main.c
+
+Process_join(process_id_t pid); Når vi kalder denne, så er det med den proces
+vi gerne vil vente på. Vi har altså en tråd vi kører, så kalder den
+exec_syscall, så den får startet en ny process op. Så får den returneret PID'et
+ud. Så modertråden har processIDet, så den har muligheden for at kalde join.
+Dette gør at modertråden venter på at der bliver kaldt exit på den nye tråd.
+uint32_t er det samme som int. Når processjoin er blevet kaldt, bliver
+processtabellen også "free"et fra den process den er blevet kaldt med.
+
+Vi skal altså gøre det muligt at få tråden til at "sove", dette er
+udfordringen. Der er en funktion der tillader dette i kernen - nemlig
+"sleepq.h". Hvis man søger på Sleep queue i buenos roadmap er der en god
+beskrivelse af denne. Man sender en addresse med. Der er kun én sleep queue, i
+hele kernen. Derfor sender man altså en addresse, som er unikt i systemet -
+altså addressen på processstrukturen. altså ikke processIDet, men addressen på
+processstrukturen!
+
+Opgaveformuleringen:
+
+Opgave 1:
+P_Struct {
+    char name [process_max_name];
+    int return_value;
+    int status;
+
+P-struct p_table [max_processes]
+
+Opgave 2:
+int syscall_exec(const char *filename);
+Dette filename skal bare kopieres over i name, defineret ovenover.
+
+Husk at når vi har opdateret en processID skal vi huske at skrive til .....
+
+Der ligger en kmalloc. inde i kernel mappen. Men der er ingen free. Det lugter
+lidt af fisk... Skal vi kun bruge hvis vi er MEGET sikre på det og har en meget
+god grund til det.
+
+Lad være med at opbygge en stack i kernen.
+
+SECRETS HAXED HINTS:
+Undgå at tage ændringer i process_start(...)
+
+initialisere processtabellen ved at markere alle processer som frie.
+
+Der skal allokerers en plads i processtabellen ti lden nye process (kør den igennem lineært)
+der skal oprettes en ny kernetråd til at køre den nye process.
+Nye tråde oprettes med thread_create(...) fra kernel/thread.c.
+Benyt process_start(...) til at oprette selve processen.
+Kernetråden med processen skal føjes til selve
+
+Systemkalder fungerer ved at man kalder et interrupt, så sørger processoren for
+at der bliver hoppet et sted i kernen, der sætter noget assemblerkode igang,
+som så kalder nogle systemkald. Man får fat i registre ved
+user_context->cpu_regs->[MIPS_REGISTERS_A0] etc etc.
+
+Så altså... Bare udvid funktionen med flere cases.
+
+F.eks:.
+
+result = syscall_read((int SYSCALL_ARG1,
+(void) * SYSCALL_ARG2..............
+
+
+Tilgangen til processor foregår atomisk... Så snart vi hopper ind i kernen, har
+vi mulighed for at få kaldt et interrupt, f.eks ved et trådskifte - kan også
+ske i kernekoden. Vi kan altså ikke være sikker på at koden bliver udført
+atomisk. Vi bliver altså nødt til at sikre os at når vi ændrer i koden, kan vi
+ikke blive skiftet ud af koden. Så vi skal have indbygget noget atomisitet?.
+
+Ikke så svært... De gør det i thread.c
+
+Med noget spinlock og noget interrupt disable. Noget med låse.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

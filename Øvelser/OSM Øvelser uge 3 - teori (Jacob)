@@ -1,0 +1,93 @@
++-----------------------+
+|	Opgave 3.9			|
++-----------------------+
+
+Løsning findes på side 108:
+
+Long term hukommelse: korte processer der cirka tager mindre end 100 ms.
+Medium term hukommelse: Swapping af processor.
+
+Swap:
+Hvis man løber tør for fysisk hukommelse på computeren, så operativsystemet kan finde på at smide dele af en process ned på harddisken, hvor det så bliver gemt der. Derfor tager det lang tid at åbne.
+
+Long term: processor der kan tage alt fra flere minutter til timer.
+
++-----------------------+
+|	Opgave 4.1			|
++-----------------------+
+
+Hvis man programmerer et sekventielt program, hvor det ene program ikke kan optimeres ved at uddele det til flere CPU'er.
+
+Ikke CPU-intensive programmer hvor der er en afhængihed fra brugersiden. Altså IO-programmer.
+
+Et eksempel på et sekvensielt program kunne være en beregning, hvor den næste er afhængig af den første.
+
++-----------------------+
+|	Opgave 4.5			|
++-----------------------+
+
+Antallet af processorer der kører = kerner i den her sammenhæng.
+
+#Kernetråde < #processor:
+Skidt. Vi har flere kerner at køre på, end vi har tråde. Så vi kan kun holde en delmængde af kernerne optaget, hvor de andre så står stille.
+
+#Kernetråde = #processor:
+Det er fint, vel sagtens den ideelle situation.
+
+#Brugerniveautråde > #Kernetråde > #processor:
+Det er en okay situation. Men hvis der ikke er nok brugertråde, i forhold til hvor mange vi kan have kørrende, er det brugeren der ikke har paralleliseret ordentligt.
+
++-----------------------+
+|	Opgave 4.10			|
++-----------------------+
+
+Løsning på side 154 og sammenhold med 103:
+
+Trådens recursor:
+Registre 
+Stack
+
+Processens recursor:
+Process state
+Program counter
+CPU registers
+CPU-scheduling information
+Memory-management information
+Accounting information
+I/O status information
+
+Så tråde er ret letvægt i forhold til processor, fordi de deler så meget.
+
++-----------------------+
+|	Opgave 4.11			|
++-----------------------+
+
+Når man laver noget interaktivt, hvor man skal simulere noget, samtidig med man indtaster noget. F.eks UI eller I/O.
+Generelt når man laver paralleliseret programmering.
+
++-----------------------+
+|  Opgave 4.1 i Buenos	|
++-----------------------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

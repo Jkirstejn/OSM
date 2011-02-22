@@ -1,0 +1,44 @@
++-----------------------+
+|	Opgave 3.11	| (142)
++-----------------------+
+Løsning på side 108:
+
+short-term: korte processer ~ < 100 ms
+medium-term: swappede processer
+long-term: processer på flere minutter eller timer.
+
+
++-----------------------+
+|	Opgave 4.1	| (174)
++-----------------------+
+
+1. Et sekventielt program, hvor det næste svar afhænger af det aktuelle.
+
+2. IO-bound programmer, hvor det ikke er cpu'en der er flaskehalsen.
+
+
+
++-----------------------+
+|	Opgave 4.5	| (176)
++-----------------------+
+
+
+
++-----------------------+
+|	Opgave 4.10	|
++-----------------------+
+What resources are used when a thread is created? How do they differ form those used when a process is created?
+
+A thread only uses registers and a stack
+A process needs all the content of a PCB = process state, number, program counter, registers, memory limits, open files etc.
+
++-----------------------+
+|	Opgave 4.11	|
++-----------------------+
+Under what circumstances does a multithreaded solution using multiple kernel threads provide better performance than a single-threaded solution on a single-processor system?
+
+Når man f.eks. laver beregninger og har en UI kørende samtidig. Når man har IO operationer osv.
+
++-----------------------+
+|	Opgave 4.1 (b)	|
++-----------------------+

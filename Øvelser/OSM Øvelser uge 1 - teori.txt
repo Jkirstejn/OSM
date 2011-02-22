@@ -1,0 +1,153 @@
++-----------------------+
+|	Opgave 2.1	|
++-----------------------+
+
+De 5 store aktiviteter et OS gør med fil management:
+1. Opret og slet filer
+2. Opret og slet mapper
+3. Manipulering af filer og mapper
+4. Mappe filer på sekundær lager
+5. Lave backup på stabile nonvolatile lagerenheder
+
+
++-----------------------+
+|	Opgave 2.7	|
++-----------------------+
+
+why is the purpose of the command interpreter?
+At give et brugbart interface for brugeren
+
+Why is it usually seperate from the kernel?
+Så man ikke skal ind og rode med kernen hvis man vil ændre lidt på den.
+
+
++-----------------------+
+|	Opgave 2.13	|
++-----------------------+
+
+Main advantage of the microkernel approach to system design?
+ Det er nemmere at arbejde en mindre kerne - man er lidt lukket ind i en "sandbox" og der er mindre risiko for at ødelægge noget kritisk
+
+How do user programs and system services interact in a microkernel architecture?
+ message parsing
+
+What are the disadvantages of using the microkernel approach?
+ Der kan være stort overhead.
+I teorien en god idé
+
++-----------------------+
+|	Opgave 2.20	|
++-----------------------+
+
+Describe how you could obtain a statistical profile of the amount of time spent by a program executing idfferent sections of its code.
+ Valgrind kan tælle hvor mange gange en linie bliver eksekveret samt hvor mange cpu cykler hver linie bliver benyttet. Ellers er det lidt svært at måle det.
+
+Discuss the importance of obtaining such a statistical profile.
+ Vigtigt hvis man skal lave performance-kode, som gerne skal køre hurtigt.
+
++-----------------------+
+|	Opgave 3.4	|
++-----------------------+
+
+Palm OS provides no means of concurrent processing. Discuss three major complications that concurrent processing adds to an operating system.
+
+synkronisering -> systemkald f.eks. er ikke atomiske
+			ressourcer skal synkroniseres.
+
+context switching -> Hukommelsesstyring/sikkerhed
+
+switching -> "schedulering" strategi (problemfyldt)
+
+
++-----------------------+
+|	Opgave 3.5	|
++-----------------------+
+Describe the actions taken by a kernel to context-swtich between processes.
+
+1. Interrupt or system call
+2. Save state into PCB[0]
+3. Reload state from PCB[1]
+4. Execute new process
+
+
+PCB = [process state, process number, program counter, registers, memory limnits, list of open files,...]
+
+
++-----------------------+
+|	Opgave 3.11	|
++-----------------------+
+
+#include <sys/types.h>
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+	pid_t pid, pid1;
+	
+	// fork a child process
+	pid = fork();
+	if (pid < 0) { // error occured
+		fprintf(stderr, "Fork Failed");
+		return 1;
+	} else if (pid == 0) { // child process
+		pid1 = getpid();
+		printf("child: pid = %d",pid); // A
+		printf("child: pid1 = %d",pid1); // B
+	} else {
+		pid1 = getpid();
+		printf("parent: pid = %d",pid); // C
+		printf("parent: pid1 = %d",pid1); // D
+		wait(NULL);
+	}
+}
+
+parent: 2600
+child: 2603
+
+A = 
+B = 
+C = 
+D = 
+
++-----------------------+
+|	Opgave 3.10	|
++-----------------------+
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main () {
+	// Fork a child process
+	fork();
+
+	// Fork another child process
+	fork();
+
+	// and fork another
+	fork();
+}
+	
+How many processes are created? 8
+
+
+
++-----------------------+
+|	Opgave 5.7	|
++-----------------------+
+
+First-Come-First-Serve
+ Jobs bliver udført i den orden, de bliver indsat i køen
+ - straffer korte processer
+
+Round-Robin
+ Der gives max X tidsenheder til et job, herefter ryger det bagerst i køen.
+ preemptive
+ - favoriserer korte processer en smule
+Multilevel feedback queues
+ "round robin" med flere køer hvis jobbene kører for langt tid = lavere prioritet
+ - favoriserer korte processer ved at straffe lange processer
+
+
++-----------------------+
+|	Opgave 5.13	|
++-----------------------+

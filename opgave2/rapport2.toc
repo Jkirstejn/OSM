@@ -1,0 +1,4 @@
+\select@language {english}
+\contentsline {section}{\numberline {1}Overall assumptions}{2}
+\contentsline {section}{\numberline {2}List of changes}{2}
+\contentsline {section}{\numberline {3}Syncronization}{2}
