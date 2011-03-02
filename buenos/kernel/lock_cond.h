@@ -34,8 +34,6 @@
 #ifndef BUENOS_KERNEL_CONDITION_LOCK_H
 #define BUENOS_KERNEL_CONDITION_LOCK_H
 
-#include "lib/types.h"
-#include "kernel/condition.h"
 typedef enum {
 	LOCK_OPEN,
 	LOCK_LOCKED
@@ -46,8 +44,8 @@ typedef struct {
 } lock_t;
 
 typedef struct {
-	
-}
+	char cond;
+} cond_t;
 
 int lock_reset(lock_t *);
 
@@ -57,11 +55,10 @@ void lock_release(lock_t *);
 
 int condition_reset(cond_t *);
 
-void condition_wait(cont_t *, lock_t *);
+void condition_wait(cond_t *, lock_t *);
 
-void condition_signal(cont_t *, lock_t *);
+void condition_signal(cond_t *, lock_t *);
 
 void condition_broadcast(cond_t *, lock_t *);
-
 #endif
 

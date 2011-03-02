@@ -2,13 +2,17 @@
 #include "kernel/thread.h"
 #include "kernel/sleepq.h"
 
+/*
+ * Reset an already allocated lock structure if possible
+ * Returns 0 if successful and -1 otherwise
+ */
 int lock_reset(lock_t *lock) {
-
+	/* Assume error */
 	int rtn = -1;
 	
-	lock->state = LOCK_OPEN;
-	
-	if (lock->state == LOCK_OPEN) {
+	/* If allocated */
+	if (lock != NULL) {
+		lock->state = LOCK_OPEN;
 		rtn = 0;
 	}
 	return rtn;
@@ -22,11 +26,13 @@ void lock_acquire(lock_t *lock) {
 
 	/* Check if lock is locked already */
 	while (lock->state == LOCK_LOCKED) {
+	
 		/* Add thread to sleep queue and switch thread */
 		sleepq_add(lock);
 		thread_switch();
 	}
-	/* Lock opened */
+	
+	/* Lock open. Acquire it! */
 	lock->state = LOCK_LOCKED;
 
 }
@@ -48,10 +54,13 @@ void lock_release(lock_t *lock) {
 }
 
 
-int condition_reset(cond_t *cond);
+int condition_reset(cond_t *cond) {
+	sleepq_wakeall(cond);
+	cond->cond = '\0';
+}
 
-void condition_wait(cont_t *cond, lock_t *condition_lock);
+void condition_wait(cond_t *cond, lock_t *condition_lock);
 
-void condition_signal(cont_t *cond, lock_t *condition_lock);
+void condition_signal(cond_t *cond, lock_t *condition_lock);
 
 void condition_broadcast(cond_t *cond, lock_t *condition_lock);

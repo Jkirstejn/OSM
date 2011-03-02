@@ -1,0 +1,19 @@
+#! /bin/bash
+
+make clean
+make -C tests clean
+
+make all
+make -C tests
+
+rm store.file
+
+util/tfstool create store.file 2048 disk1
+
+util/tfstool write store.file tests/halt
+util/tfstool write store.file tests/calc
+util/tfstool write store.file tests/exec
+util/tfstool write store.file tests/hw
+util/tfstool write store.file tests/threads
+util/tfstool write store.file tests/threads_locks
+util/tfstool write store.file tests/threads_ring

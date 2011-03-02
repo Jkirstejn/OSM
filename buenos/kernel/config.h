@@ -43,8 +43,8 @@
 #define CONFIG_MAX_THREADS 32
 
 /* Define the maximum number of processes supported by the kernel
-*
-*/
+ *
+ */
 #define CONFIG_MAX_PROCESSES 32
 
 /* Size of the stack of a kernel thread */

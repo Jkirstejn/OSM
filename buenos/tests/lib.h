@@ -52,6 +52,7 @@
 #include <stddef.h>
 
 #include "lib/types.h"
+#include "kernel/lock_cond.h"
 
 #define MIN(arg1,arg2) ((arg1) > (arg2) ? (arg2) : (arg1))
 #define MAX(arg1,arg2) ((arg1) > (arg2) ? (arg1) : (arg2))

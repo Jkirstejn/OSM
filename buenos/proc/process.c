@@ -198,6 +198,12 @@ void process_start(const char *executable)
 process_id_t process_spawn(const char *executable) {
 	int retval = -1;	// Assume that something goes wrong
 
+	/* Disable interrupts and acquire spinlock */
+	interrupt_status_t intr_status;
+	intr_status = _interrupt_disable();
+	
+	spinlock_acquire(&pspinlock);
+	
 	/* Find first free process slot */
 	int pid = 0;
 	while(ptable[pid].state != PROCESS_FREE && pid < CONFIG_MAX_PROCESSES) {
@@ -206,12 +212,6 @@ process_id_t process_spawn(const char *executable) {
 
 	/* Check if there was a free process slot and if succeeded in creating a new thread */
 	if (pid < CONFIG_MAX_PROCESSES) {
-	
-		/* Disable interrupts and acquire spinlock */
-		interrupt_status_t intr_status;
-		intr_status = _interrupt_disable();
-		
-		spinlock_acquire(&pspinlock);
 		
 		/* Create new thread
 		 * if successful the process is linked to the thread
@@ -219,16 +219,18 @@ process_id_t process_spawn(const char *executable) {
 		TID_t tid = thread_create((void *)process_start, (int)executable);
 		if (tid != -1) {
 			(thread_get_thread_entry(tid))->process_id = pid;
-			ptable[pid].name = executable;
+			stringcopy(ptable[pid].name, executable, 32);
 			ptable[pid].state = PROCESS_ALIVE;
 			retval = pid;
 			thread_run(tid);
 		}
 		
-		/* Release spinlock and restore interrupt mask */
-		spinlock_release(&pspinlock);
-		_interrupt_set_state(intr_status);
 	}
+	
+	/* Release spinlock and restore interrupt mask */
+	spinlock_release(&pspinlock);
+	_interrupt_set_state(intr_status);
+	
 	return retval; // Return pid if successful or -1 otherwise
 }
 
@@ -252,7 +254,7 @@ int process_run(const char *executable) {
 		
 		/* link process with current thread and insert process in table */
 		(thread_get_current_thread_entry())->process_id = pid;
-		ptable[pid].name = executable;
+		stringcopy(ptable[pid].name, executable, 32);
 		ptable[pid].state = PROCESS_ALIVE;
 		
 		/* Release spinlock and restore interrupt mask */
@@ -273,8 +275,8 @@ process_id_t process_get_current_process(void) {
 /* Set a process table entry to free
  * Caller is responsible for handling interrupts etc. correctly */
 void process_free_entity(int pid) {
-	ptable[pid].name = NULL;
 	ptable[pid].state = PROCESS_FREE;
+	ptable[pid].name[0] = '\0';
 	ptable[pid].return_value = -1;
 }
 
@@ -349,7 +351,10 @@ void process_init(void) {
 	/* Disable interrupts and acquire spinlock */
 	interrupt_status_t intr_status;
 	intr_status = _interrupt_disable();
-		
+	
+	/* Reset spinlock or use in */
+	spinlock_reset(&pspinlock);
+
 	spinlock_acquire(&pspinlock);
 	
 	int x;

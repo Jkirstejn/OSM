@@ -38,6 +38,7 @@
 #define BUENOS_PROC_PROCESS
 
 #include "lib/types.h"
+#include "kernel/config.h"
 
 typedef int process_id_t;
 
@@ -49,7 +50,7 @@ typedef enum {
 
 typedef struct {
 	int return_value;
-	const char* name;
+	char name[32];
 	process_state_t state;
 } process_table_t;
 
