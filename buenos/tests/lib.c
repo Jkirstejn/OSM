@@ -114,6 +114,36 @@ void *syscall_memlimit(void *heap_end)
     return (void*)_syscall(SYSCALL_MEMLIMIT, (uint32_t)heap_end, 0, 0);
 }
 
+/*
+ * Lock and condition system calls
+ */
+int syscall_lock_create(usr_lock_t *lock) {
+	return (int)_syscall(SYSCALL_LOCK_CREATE, (uint32_t)lock, 0, 0);
+}
+
+void syscall_lock_acquire(usr_lock_t *lock) {
+	return (void)_syscall(SYSCALL_LOCK_ACQUIRE, (uint32_t)lock, 0, 0);
+}
+void syscall_lock_release(usr_lock_t *lock) {
+	return (void)_syscall(SYSCALL_LOCK_RELEASE, (uint32_t)lock, 0, 0);
+}
+
+int syscall_condition_create(usr_cond_t *cond) {
+	return (int)_syscall(SYSCALL_CONDITION_CREATE, (uint32_t)cond, 0, 0);
+}
+
+void syscall_condition_wait(usr_cond_t *cond, usr_lock_t *lock) {
+	return (void)_syscall(SYSCALL_CONDITION_WAIT, (uint32_t)cond, (uint32_t)lock, 0);
+}
+
+void syscall_condition_signal(usr_cond_t *cond, usr_lock_t *lock) {
+	return (void)_syscall(SYSCALL_CONDITION_SIGNAL, (uint32_t)cond, (uint32_t)lock, 0);
+}
+
+void syscall_condition_broadcast(usr_cond_t *cond, usr_lock_t *lock) {
+	return (void)_syscall(SYSCALL_CONDITION_BROADCAST, (uint32_t)cond, (uint32_t)lock, 0);
+}
+
 
 /* Open the file identified by 'filename' for reading and
  * writing. Returns the file handle of the opened file (positive

@@ -52,6 +52,9 @@ typedef struct {
 	int return_value;
 	char name[32];
 	process_state_t state;
+	int threads;
+	uint32_t stack_end;
+	uint32_t bot_free_stack;
 } process_table_t;
 
 void process_start(const char *);
@@ -68,6 +71,9 @@ uint32_t process_join(process_id_t);
 
 void process_init(void);
 
+int process_fork(void (*func)(int), int arg);
+
+#define USERLAND_STACK_MASK (PAGE_SIZE_MASK*CONFIG_USERLAND_STACK_SIZE)
 #define USERLAND_STACK_TOP 0x7fffeffc
 
 #endif

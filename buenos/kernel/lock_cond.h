@@ -44,8 +44,11 @@ typedef struct {
 } lock_t;
 
 typedef struct {
-	char cond;
+	char c;
 } cond_t;
+
+typedef cond_t usr_cond_t;
+typedef lock_t usr_lock_t;
 
 int lock_reset(lock_t *);
 

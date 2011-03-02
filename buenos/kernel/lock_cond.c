@@ -1,4 +1,4 @@
-#include "lock.h"
+#include "kernel/lock_cond.h"
 #include "kernel/thread.h"
 #include "kernel/sleepq.h"
 
@@ -53,14 +53,24 @@ void lock_release(lock_t *lock) {
 	
 }
 
-
 int condition_reset(cond_t *cond) {
-	sleepq_wakeall(cond);
-	cond->cond = '\0';
+	sleepq_wake_all(cond);
+	cond->c = '\0';
+	return 0;
 }
 
-void condition_wait(cond_t *cond, lock_t *condition_lock);
+void condition_wait(cond_t *cond, lock_t *condition_lock) {
+	sleepq_add(cond); // Wait for a signal from cond
+	lock_release(condition_lock); // Release the condition lock
+	thread_switch(); // Sleep thread
+}
 
-void condition_signal(cond_t *cond, lock_t *condition_lock);
+void condition_signal(cond_t *cond, lock_t *condition_lock) {
+	lock_acquire(condition_lock);
+	sleepq_wake(cond);
+}
 
-void condition_broadcast(cond_t *cond, lock_t *condition_lock);
+void condition_broadcast(cond_t *cond, lock_t *condition_lock) {
+	lock_acquire(condition_lock);
+	sleepq_wake_all(cond);
+}
