@@ -380,7 +380,8 @@ int process_run(const char *executable) {
 		_interrupt_set_state(intr_status);
 		
 		/* Run process */
-		process_start(executable);
+		kprintf(process_table[pid].name, "s");
+		process_start(process_table[pid].name);
 	}
 	return -1; // Fail if this is reached
 }

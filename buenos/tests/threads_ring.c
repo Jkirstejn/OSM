@@ -21,10 +21,10 @@ typedef struct thread_data {
 } thread_data;
 
 
-void thread_function(void *arg){
+void thread_function(void *arg) {
     thread_data *data = (thread_data *)arg;
     while(1) {
-
+		//printf("1\n");
         syscall_lock_acquire(&baton_lock);
         
         // Wait until baton is non-zero (meaning that the thread
