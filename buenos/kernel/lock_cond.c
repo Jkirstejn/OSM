@@ -46,7 +46,6 @@ void lock_acquire(lock_t *lock) {
 	lock->state = LOCK_LOCKED;
 }
 
-
 /*
  * Unlock the given lock
  */
