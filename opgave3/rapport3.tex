@@ -33,6 +33,12 @@ We've made the following assumptions, on which our implementation depends on:
 \section{Important observations}
 
 \section{Design decisions}
+
+When we're implimenting the locks, we both disable interrupts in "lock\_reset"
+to begin with and enable them again before we return. In "lock\_acquire" we
+only disable interrupts when we're adding a process to the sleep que. It is the
+responsibility of our "lock\_release" function to enable the interrupts again.
+
 Brief discussion of the decisions we've made. e.g while loop vs for loop.
 
 \section{List of changes}
