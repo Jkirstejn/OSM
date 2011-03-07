@@ -51,7 +51,6 @@
 #include "kernel/scheduler.h"
 #include "kernel/synch.h"
 #include "kernel/thread.h"
-#include "kernel/lock.h"
 #include "lib/debug.h"
 #include "lib/libc.h"
 #include "net/network.h"

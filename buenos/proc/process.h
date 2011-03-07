@@ -50,7 +50,7 @@ typedef enum {
 
 typedef struct {
 	int return_value;
-	char name[32];
+	char name[CONFIG_MAX_PROCESS_NAME];
 	process_state_t state;
 	int threads;
 	uint32_t stack_end;

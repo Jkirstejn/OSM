@@ -47,6 +47,11 @@
  */
 #define CONFIG_MAX_PROCESSES 32
 
+/*
+ * Define the maximum length of a process name
+ */
+#define CONFIG_MAX_PROCESS_NAME 32
+
 /* Size of the stack of a kernel thread */
 #define CONFIG_THREAD_STACKSIZE 4096
 

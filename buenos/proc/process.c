@@ -329,7 +329,7 @@ process_id_t process_spawn(const char *executable) {
 		TID_t tid = thread_create((void *)process_start, (int)executable);
 		if (tid != -1) {
 			(thread_get_thread_entry(tid))->process_id = pid;
-			stringcopy(process_table[pid].name, executable, 32);
+			stringcopy(process_table[pid].name, executable, CONFIG_MAX_PROCESS_NAME);
 			process_table[pid].state = PROCESS_ALIVE;
 			process_table[pid].threads = 1;
 			process_table[pid].stack_end = (USERLAND_STACK_TOP & PAGE_SIZE_MASK) -
@@ -368,7 +368,7 @@ int process_run(const char *executable) {
 		
 		/* link process with current thread and insert process in table */
 		(thread_get_current_thread_entry())->process_id = pid;
-		stringcopy(process_table[pid].name, executable, 32);
+		stringcopy(process_table[pid].name, executable, CONFIG_MAX_PROCESS_NAME);
 		process_table[pid].state = PROCESS_ALIVE;
 		process_table[pid].threads = 1;
 		process_table[pid].stack_end = (USERLAND_STACK_TOP & PAGE_SIZE_MASK) -
