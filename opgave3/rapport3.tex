@@ -29,18 +29,9 @@ We've made the following assumptions, on which our implementation depends on:
 \end{itemize}
 
 \section{Design decisions}
-<<<<<<< HEAD
-
 In order to maintain atomic access to our locks, we chose to implement them by disabling interrupts and using spinlocks. This means that every time we acess the state variable of a given lock we first acquire the spinlock for the lock we wish to access. We then access the state of the lock and perform the desired changes followed by a release of the spinlock at the end. Furthermore we encapsulate the entire access to the spinlocks and the lock state with disabling of interrupts. We simply follow the guidelines given in the Buenos Roadmap, page 29.
 
 We similarily disable interrupts in the implementation of the conditions. We don't use spinlocks in the implementation of the conditions though since it doesn't make any sense to do so.
-=======
-When we're implimenting the locks, we both disable interrupts in "lock\_reset"
-to begin with and enable them again before we return. In "lock\_acquire" we
-only disable interrupts when we're adding a process to the sleep que. It is the
-responsibility of our "lock\_release" function to enable the interrupts again.
-We've extended these decisions to the design of the conditional locks as well.
->>>>>>> 355567e35b6f0b1d48fa0f1093f215e5aeecd44d
 
 We've chosen to give the syscalls for lock functions the hex values 0x301,
 0x302 and 0x303. This means that the only syscalls starting with 0x3 are the
