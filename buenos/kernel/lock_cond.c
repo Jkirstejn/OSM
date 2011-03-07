@@ -3,7 +3,10 @@
 #include "kernel/sleepq.h"
 #include "kernel/interrupt.h"
 
+/* Interrupt variable to hold lock interrupt mask */
 interrupt_status_t intr_status;
+
+/* Interrupt variable to hold condition interrupt mask */
 interrupt_status_t intr_status2;
 /*
  * Reset an already allocated lock structure if possible
@@ -57,12 +60,18 @@ void lock_release(lock_t *lock) {
 	}
 }
 
+/*
+ * Reset condition
+ * Used when creating a condition.
+ * Assumes that space for the structure has been allocated
+ */
 int condition_reset(cond_t *cond) {
 	intr_status2 = _interrupt_disable();
 	/* Assume error */
 	int rtn = -1;
 	
-	if (cond != NULL) {	// Pointer to some allocated space
+	/* Check if the condition points to some allocated space */
+	if (cond != NULL) {
 		cond->c = '\0';
 		rtn = 0;
 	}
@@ -70,23 +79,33 @@ int condition_reset(cond_t *cond) {
 	return rtn;
 }
 
+/*
+ * Wait for a condition
+ * Sleeps threads and waits for a signal from the given condition
+ */
 void condition_wait(cond_t *cond, lock_t *condition_lock) {
 	intr_status2 = _interrupt_disable();
-	sleepq_add(cond); // Wait for a signal from cond
-	lock_release(condition_lock); // Release the condition lock
+	sleepq_add(cond);				// Wait for a signal from cond
+	lock_release(condition_lock);	// Release the condition lock
 	
 	_interrupt_set_state(intr_status2);
-	thread_switch(); // Sleep thread
+	thread_switch();				// Sleep thread
 }
 
+/*
+ * Signal next thread waiting for the given condition
+ */
 void condition_signal(cond_t *cond, lock_t *condition_lock) {
 	intr_status2 = _interrupt_disable();
-	lock_acquire(condition_lock);
-	sleepq_wake(cond);
+	lock_acquire(condition_lock);	// Acquire lock
+	sleepq_wake(cond);				// Wake up next waiting thread
 }
 
+/*
+ * Signal all threads waiting for the given condition
+ */
 void condition_broadcast(cond_t *cond, lock_t *condition_lock) {
 	intr_status2 = _interrupt_disable();
-	lock_acquire(condition_lock);
-	sleepq_wake_all(cond);
+	lock_acquire(condition_lock);	// Acquire lock
+	sleepq_wake_all(cond);			// Wake up all waiting threads
 }
