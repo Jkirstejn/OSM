@@ -1,0 +1,199 @@
+10.2:
+Ikke særlig hensigtsmæssigt, hvis der er flere programmer der skriver til samme
+fil.
+
+10.8:
+Global tabel vs en lokal tabel for hver bruger. Hvad er bedst og hurtigst?
+
+Problemer er at hvis vi bare har en tabel for hver bruger, så er det nemt at
+afvikle de ting brugeren har kørende. Men hvis vi har en global tabel skal man
+passe på med at lukke tabellen, hvis andre brugeren tilgår den. Men måske ville
+lokale tabeller give mere overhead. Dette er et designproblem.
+
+11.4:
+Linked allocation:
+Hvis vi har et filsystem der er repræsenteret med en masse blokke, så hvis en
+fil fylder mere end en blok, så er der en pointer hen til den næste blok hvor
+filen så fortsætter.
+
+File allocation table (lidt misvisende navn):
+Istedet for at dykke ned gennem pointerne, så har man idexeret hvor resten af
+filen befinder sig. Er smart når man skal søge.
+
+Problemmet med fat er at der er et begrænset antal pegere. Så man peger bare på
+en ny struktur med f.eks 16 nye pegere og så har man pludselig fat32 fra fat16.
+
+11.12:
+Et consistency check gennemløber hele operativsystemet og checker metadata, for
+at se om der skulle være nogle uoverensstemmelser.
+
+At journalisere et filsystem vil sige at hver gang man vil skrive noget, så
+skriver man det i princippet to gange. Først til en buffer, hvis man genstarter
+og ikke er blevet færdig med at skrive, derfor har man en bit til at indikere
+om man er færdig med at skrive. For at det ned er det bygget op omkring
+transaktioner.
+
+Når man laver en consistency check, checker man om alle bitsne er blevet sat
+rigtigt for disse transaktioner. Checker også om pointerne er sat rigtigt, i
+file allocation table.
+
+8.2:
+Man har en logisk adresse der bliver mappet over til en fysisk adresse. F.eks
+har man en 32 bit adresse, hvor man tager de øverste mest betydende bits som
+index, hvorudfra man får et offset, som man giver til sin adresse.... Arrrgh
+something something hurtigt på tavlen... Kort sagt det er implementeret (eller
+understøttet) i hardwaren.
+
+Den måde operativsystemet kan repræsentere hukommelse på er følgende tre måder:
+
+Sammenhængende hukommelse:
+Den allermest simple...
+
+Vi har hele vores fysiske hukommelse, en proces får et stor sammenhængende
+hukommelse. Oversættelsen fra logisk hukommelse til fysisk gøres ved at lægge
+offsettet til, som giver os en eller anden peger ind i den fysiske hukommelse.
+Så når vi har brugt alt den fysiske hukommelse der er blevet tildelt, skal man
+være heldig for at få mere sammenhængende hukommelse.
+
+Man har en logisk adresse (tegning på side 325), hvor man bare skal checke
+
+paging
+Man slår op i en tabel. Hvor man har inddelt den fysiske hukommelse i pages der
+har en kostant størrelse. Brugerprogrammet ved bare at det kører fra adresse 0
+og så kan den bare gå amok.
+
+Sekmentering
+Minder lidt om paging, men siderne har ikke konstant størrelse. De kan altså
+variere i størrelse.
+
+Fragmentering
+
+Fragmentering betyder at man har noget plads der ikke bliver benyttet, fordi
+man får placeret sine hukommelseblokke uhensigtsmæssigt. Det bliver altså ikke
+altid bedst muligt udnyttet.
+
+Internal fragmentation:
+Hvis vi allokerer for store blokke, som vi ikke bruger. Så får man noget i
+blokkene der aldrig bliver benyttet.
+
+External fragmentation:
+Hvis vi allokerer en kæmpe blok og så en til og så en til. Så hvis den
+midterste process frigiver den midterste hukommelse. Så kommer der en ny
+process der kræver lidt mindre end den midterste. Så er der et problem. Så hvis
+der kommer en ny proces hvor der faktisk er overall plads, men det er fordelt
+på en masse små blokke, fucker det.
+
+a:
+Giver sammenhængende anledning til ekstern fragmentering?
+Ja
+
+Giver paging anledning til ekstern fragmentering?
+Nej, dette er perfekt fragmentering da det er konstante størrelser af blokke.
+
+b:
+Giver sammenhængende anledning til intern fragmentering? Kan vi risikere vi
+allokerer for meget til et program, så den ikke vil bruge det?
+Ja, big time.
+
+Giver sekmentering anledning til intern fragmentering?
+Ja vi kan risikere det. Man gider ikke oprette sekmenter hver gang en bruger
+kalder malloc f.eks.
+
+Giver paging anledning til intern fragmentering?
+Ja, man kan risikere at oprette for store blokke, med konstante størrelser.
+
+c:
+Normalt virker det ikke attraktivt at dele kode mellem processor, men i
+praktisk bliver det benyttet rigtig meget. Det eneste tidspunkt fordi det er
+smart at dele hukommelse er hvis man vil parallelisere en opgave. Men også ved
+biblioteksfunktioner, f.eks standardbiblioteket i C - det ville fylde herre
+meget hvis man skulle indlæse det hver gang. Så man deler et sekment mellem
+flere processor. Dette er faktisk ret smart. Så man sparer en masse plads hvis
+man kan linke biblioteker sammen.
+
+Segmentering og paging tillader at give andre processor adgang til hele ens
+segment. Sammenhængende hukommelse er for usikkert.
+
+8.5:
+
+a:
+Figure 8.22. Intel har både segmentering og paging (fordi det er sejt).
+
+Det der sker når man oversætter en adresse i Intel - se figur 8.23. Fuck han
+taler hurtigt nu.
+
+b:
+Fordelene er... Man kan lave lidt af hvert. Den er bagudkompatibelt. Så gamle
+systemer der er glade for segmentering kan gøre det. Det største problem med
+segmentering er at hukommelsen faktisk ikke er lineær mere for programmer.
+Problemet er at nogle adresser meget nemt kan give segmentation fault. Hvorimod
+paging lettere kan oprette et nyt opslag for den pågældende side.
+
+c:
+Det er for kompliceret. Der er ingen grund at have så mange forskellige måder
+at oversætte hukommelse på.
+
+8.16:
+Opgaven er så nem, behøver vi gennemgå den?
+
+First fit = vi finder den første den bedste, fra et eller andet startpunkt (lad
+os sige fra starten hver gang). Gennemgang på tavlen med hvor den kan være...
+
+Best fit = Man gennemgår alle frie hukommelser og vælger den mindste hukommelse
+der kan rumme processbehovet.
+
+Worst fit = Man skal finde den største frie hukommelse, så den er faktisk lig
+med en masse intern fragmentering.
+
+8.19:
+
+Hvis vi har vores 32 bit logisk adresse. Hvilke bits skal jeg så bruge til at
+slå op i vores sidetabel med?
+
+22. Fordi de mindst betydende bits kun skal kunne repræsentere 1-KB. hvilket jo er 2^10.
+
+Vi kan altså bare skrive dem op i binær form og så bare kappe dem af og bruge
+resten som offset. Kunne også lave noget division jeg ikke lige fik fat i.
+
+8.21:
+
+Vi har en segmenttabel. I vores logiske adresser har de valgt at repræsentere
+det mere explicit, havde de ikke gjort oppe i sidetabelopgaven, så det er
+lettere for os.
+
+Fysiske adresse for 0,430:
+219 + 430 = 649
+
+Fysisk adresse for 1,10:
+2300 + 10 = 2310
+
+Fysisk adresse for 2,500:
+Segfault.
+
+Fysisk adresse for 3,400:
+1327 + 400 = 1727
+
+Fysisk adresse for 4,112:
+Segfault, fordi offsettet er større end længden.
+
+___________________________________________________________________________________
+
+SPØRGSMÅL OM G4:
+
+Meningen med clusters i fat32:
+ØØØH bla bla fik ikke fat i det.
+
+Instruktoren tror ikke vi skal tænke så meget over det. Bare gør som det er,
+det er et gammelt system og er lidt underligt...
+
+Der er rigtig meget kode at skrive, så gå igang i ordentlig tid.
+
+De har talt om at udgive noget kode fordi enginene er forskellige på fat32 og
+buenos. Dette er på byte niveau. Den læser den mest betydende bit først og så
+til venstre i den mindst betydende byte når man har de 32 bits. Så fortsætter
+den med den næstmest betydende byte osv.
+
+Ikke flere spørgsmål.
+
+Klokken er 16.20.
+Malus over and out!
