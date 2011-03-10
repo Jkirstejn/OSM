@@ -34,6 +34,8 @@
 #ifndef BUENOS_KERNEL_CONDITION_LOCK_H
 #define BUENOS_KERNEL_CONDITION_LOCK_H
 
+#include "kernel/spinlock.h"
+
 typedef enum {
 	LOCK_OPEN,
 	LOCK_LOCKED
@@ -41,6 +43,7 @@ typedef enum {
 
 typedef struct {
 	lock_state_t state;
+	spinlock_t spinlock;
 } lock_t;
 
 typedef struct {

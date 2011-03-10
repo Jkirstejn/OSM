@@ -8,7 +8,7 @@
 #define THREADS 5
 
 // Number of times to make the baton go round
-#define ROUNDS 3
+#define ROUNDS 10
 
 usr_lock_t baton_lock;
 
