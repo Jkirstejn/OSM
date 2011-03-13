@@ -43,6 +43,7 @@
 #include "drivers/device.h"
 #include "drivers/gcd.h"
 #include "kernel/lock_cond.h"
+#include "fs/vfs.h"
 
 /* Write length bytes from buffer to std.out */
 int syscall_write(int filehandle, const void *buffer, int length) {
@@ -58,6 +59,8 @@ int syscall_write(int filehandle, const void *buffer, int length) {
     	gcd = (gcd_t *)dev->generic_device;
     	KERNEL_ASSERT(gcd != NULL);
         retval = gcd->write(gcd, buffer, length);
+	} else if (filehandle > 2) {
+		retval = vfs_write(filehandle, (void *)buffer, length);
 	}
 	return retval;
 }
@@ -77,6 +80,8 @@ int syscall_read(int filehandle, void *buffer, int length) {
 		KERNEL_ASSERT(gcd != NULL);
 		
 		retval = gcd->read(gcd, buffer, length);
+	} else if (filehandle > 2) {
+		retval = vfs_read(filehandle, buffer, length);
 	}
 	return retval;
 }
@@ -112,6 +117,26 @@ void syscall_condition_signal(usr_cond_t *cond, usr_lock_t *lock) {
 
 void syscall_condition_broadcast(usr_cond_t *cond, usr_lock_t *lock) {
 	condition_broadcast(cond, lock);
+}
+
+int syscall_open(const char *filename) {
+	return vfs_open((char *)filename);
+}
+
+int syscall_close(int filehandle) {
+	return vfs_close(filehandle);
+}
+
+int syscall_create(const char *filename, int size) {
+	return vfs_create((char *)filename, size);
+}
+
+int syscall_delete(const char *filename) {
+	return vfs_remove((char *)filename);
+}
+
+int syscall_seek(int filehandle, int offset) {
+	return vfs_seek(filehandle, offset);
 }
 
 /**
@@ -176,6 +201,21 @@ void syscall_handle(context_t *user_context)
 		break;
 	case SYSCALL_CONDITION_BROADCAST:
 		syscall_condition_broadcast((usr_cond_t *)user_context->cpu_regs[MIPS_REGISTER_A1], (usr_lock_t *)user_context->cpu_regs[MIPS_REGISTER_A2]);
+		break;
+	case SYSCALL_OPEN:
+		user_context->cpu_regs[MIPS_REGISTER_V0] = syscall_open((const char *)user_context->cpu_regs[MIPS_REGISTER_A1]);
+		break;
+	case SYSCALL_CLOSE:
+		user_context->cpu_regs[MIPS_REGISTER_V0] = syscall_close((int)user_context->cpu_regs[MIPS_REGISTER_A1]);
+		break;
+	case SYSCALL_CREATE:
+		user_context->cpu_regs[MIPS_REGISTER_V0] = syscall_create((const char *)user_context->cpu_regs[MIPS_REGISTER_A1], (int)user_context->cpu_regs[MIPS_REGISTER_A2]);
+		break;
+	case SYSCALL_DELETE:
+		user_context->cpu_regs[MIPS_REGISTER_V0] = syscall_delete((const char *)user_context->cpu_regs[MIPS_REGISTER_A1]);
+		break;
+	case SYSCALL_SEEK:
+		user_context->cpu_regs[MIPS_REGISTER_V0] = syscall_seek((int)user_context->cpu_regs[MIPS_REGISTER_A1], (int)user_context->cpu_regs[MIPS_REGISTER_A2]);
 		break;
     default: 
         KERNEL_PANIC("Unhandled system call\n");
