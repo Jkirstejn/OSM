@@ -3,6 +3,6 @@
 # Set the module name
 MODULE := fs
 
-FILES := vfs.c tfs.c filesystems.c
+FILES := vfs.c tfs.c slim32.c filesystems.c
 
 SRC += $(patsubst %, $(MODULE)/%, $(FILES))
