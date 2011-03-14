@@ -17,3 +17,4 @@ util/tfstool write store.file tests/hw hw
 util/tfstool write store.file tests/threads threads
 util/tfstool write store.file tests/threads_locks threads_locks
 util/tfstool write store.file tests/threads_ring threads_ring
+util/tfstool write store.file tests/fs_open fs_open
