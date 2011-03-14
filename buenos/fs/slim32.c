@@ -165,13 +165,6 @@ fs_t * slim32_init(gbd_t *disk) {
 	fs->read	= slim32_read;
 	fs->write	= slim32_write;
 	fs->getfree	= slim32_getfree;
-	int i;
-	for(i=0; i<11; i++) {
-		kprintf("%c", (char *)addr+0x47+i);
-	}
-		kprintf("\n");
-
-	kprintf("Volume name: %s\n", fs->volume_name);
 	return fs;
 }
 
@@ -184,7 +177,7 @@ int slim32_open(fs_t *fs, char *filename) {
 	slim32_t *slim32;
 	slim32 = (slim32_t *)fs->internal;
 	
-	
+	kprintf("Trying to open: %s\n", filename);
 	/* How to calculate address of a cluster:
 	uint32_t lba_addr = slim32->cluster_begin_lba + (cluster_number - 2) * slim32->sectors_per_cluster;
 	*/
@@ -211,7 +204,7 @@ int slim32_open(fs_t *fs, char *filename) {
 	}*/
 	fs = fs;
 	filename = filename;
-	return 0;
+	return (int)(slim32->cluster_begin_lba);
 }
 int slim32_close(fs_t *fs, int fileid) {
 	fs = fs;
