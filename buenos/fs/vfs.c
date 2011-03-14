@@ -579,10 +579,9 @@ openfile_t vfs_open(char *pathname)
         vfs_end_op();
 	return fileid; /* negative -> error*/
     }
-
+    
     openfile_table.files[file].fileid = fileid;
     openfile_table.files[file].seek_position = 0;
-
     vfs_end_op();
     return file;
 }

@@ -59,8 +59,8 @@ int syscall_write(int filehandle, const void *buffer, int length) {
     	gcd = (gcd_t *)dev->generic_device;
     	KERNEL_ASSERT(gcd != NULL);
         retval = gcd->write(gcd, buffer, length);
-	} else if (filehandle > 2) {
-		retval = vfs_write(filehandle, (void *)buffer, length);
+	} else if (filehandle > FILEHANDLE_OFFSET) {
+		retval = vfs_write(filehandle - FILEHANDLE_OFFSET, (void *)buffer, length);
 	}
 	return retval;
 }
@@ -80,8 +80,8 @@ int syscall_read(int filehandle, void *buffer, int length) {
 		KERNEL_ASSERT(gcd != NULL);
 		
 		retval = gcd->read(gcd, buffer, length);
-	} else if (filehandle > 2) {
-		retval = vfs_read(filehandle, buffer, length);
+	} else if (filehandle > FILEHANDLE_OFFSET) {
+		retval = vfs_read(filehandle - FILEHANDLE_OFFSET, buffer, length);
 	}
 	return retval;
 }
@@ -120,11 +120,11 @@ void syscall_condition_broadcast(usr_cond_t *cond, usr_lock_t *lock) {
 }
 
 int syscall_open(const char *filename) {
-	return vfs_open((char *)filename);
+	return vfs_open((char *)filename) + FILEHANDLE_OFFSET;
 }
 
 int syscall_close(int filehandle) {
-	return vfs_close(filehandle);
+	return vfs_close(filehandle - FILEHANDLE_OFFSET);
 }
 
 int syscall_create(const char *filename, int size) {
@@ -136,7 +136,7 @@ int syscall_delete(const char *filename) {
 }
 
 int syscall_seek(int filehandle, int offset) {
-	return vfs_seek(filehandle, offset);
+	return vfs_seek(filehandle - FILEHANDLE_OFFSET, offset);
 }
 
 /**

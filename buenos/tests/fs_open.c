@@ -1,5 +1,5 @@
 #include "tests/lib.h"
-static const char prog[] = "[hamster]hejsa/lort.lol"; /* The program to start. */
+static const char prog[] = "[hamster]test"; /* The program to start. */
 
 int main(void)
 {
