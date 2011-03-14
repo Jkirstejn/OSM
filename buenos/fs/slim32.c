@@ -15,6 +15,19 @@
  *
  * @{
  */
+uint16_t read_16(uint8_t *addr) {
+	uint8_t b0 = *(uint8_t *)(addr);
+	uint8_t b1 = *(uint8_t *)(addr+1);
+	return b0 | b1 << 8;
+}
+
+uint32_t read_32(uint8_t *addr) {
+	uint8_t b0 = *(uint8_t *)(addr);
+	uint8_t b1 = *(uint8_t *)(addr+1);
+	uint8_t b2 = *(uint8_t *)(addr+2);
+	uint8_t b3 = *(uint8_t *)(addr+3);
+	return b0 | b1 << 8 | b2 << 16 | b3 << 24;
+}
 
 /* FAT32 layout information */
 typedef struct {
@@ -36,6 +49,7 @@ typedef struct {
 } slim32_t;
 
 fs_t * slim32_init(gbd_t *disk) {
+	kprintf("Initializing slim FAT32 filesystem.\n");
 	uint32_t addr;
 	fs_t *fs;
 	gbd_request_t req;
@@ -49,6 +63,10 @@ fs_t * slim32_init(gbd_t *disk) {
 		return NULL;
 	}
 	addr = ADDR_PHYS_TO_KERNEL(addr);	// transform to vm address
+	
+    /* Assert that one page is enough */
+    KERNEL_ASSERT(PAGE_SIZE >= (sizeof(slim32_t) + sizeof(fs_t)) + sizeof(BPB_t));
+	
 	/* Read header block, and make sure this is tfs drive */
 	req.block = 0;
 	req.sem = NULL;
@@ -63,19 +81,24 @@ fs_t * slim32_init(gbd_t *disk) {
 	fs	= (fs_t *)addr;
 	bpb = (BPB_t *)(addr + sizeof(fs_t));
 	slim32 = (slim32_t *)(addr + sizeof(fs_t) + sizeof(BPB_t));
-	
-	bpb->BytsPerSec	= *(uint16_t *)(addr + 0x0B);
+	bpb->BytsPerSec	= read_16((uint8_t *)(addr + 0x0B));
+	kprintf("2\n");
 	bpb->SecPerClus	= *(uint8_t *)(addr + 0x0D);
+	kprintf("3\n");
 	bpb->RsvdSecCnt	= *(uint16_t *)(addr + 0x0E);
+	kprintf("4\n");
 	bpb->NumFATs	= *(uint8_t *)(addr + 0x10);
+	kprintf("5\n");
 	bpb->FATSz32	= *(uint32_t *)(addr + 0x24);
+	kprintf("6\n");
 	bpb->RootClus	= *(uint32_t *)(addr + 0x2C);
-	bpb->Signature	= *(uint16_t *)(addr + 0x1FE);
-	
+	kprintf("7\n");
+	bpb->Signature	= read_16((uint8_t *)(addr + 0x1FE));
+	kprintf("8\n");
 	/* Check if Bytes Per Sector is set correct */
 	if(bpb->BytsPerSec != SLIM32_BYTS_PER_SEC) {
 		pagepool_free_phys_page(ADDR_KERNEL_TO_PHYS(addr));
-		return NULL;
+		return NULL
 	}
 
 	/* Check if Number of FATs is set correct */
@@ -111,27 +134,48 @@ fs_t * slim32_init(gbd_t *disk) {
 }
 
 int slim32_unmount(fs_t *fs) {
+	fs = fs;
 	return 0;
 }
 int slim32_open(fs_t *fs, char *filename) {
+	fs = fs;
+	filename = filename;
 	return 0;
 }
 int slim32_close(fs_t *fs, int fileid) {
+	fs = fs;
+	fileid = fileid;
 	return 0;
 }
 int slim32_create(fs_t *fs, char *filename, int size) {
+	fs = fs;
+	filename = filename;
+	size = size;
 	return 0;
 }
 int slim32_remove(fs_t *fs, char *filename) {
+	fs = fs;
+	filename = filename;
 	return 0;
 }
 int slim32_read(fs_t *fs, int fileid, void *buffer, int bufsize, int offset) {
+	fs = fs;
+	fileid = fileid;
+	buffer = buffer;
+	bufsize = bufsize;
+	offset = offset;
 	return 0;
 }
 int slim32_write(fs_t *fs, int fileid, void *buffer, int datasize, int offset) {
+	fs = fs;
+	fileid = fileid;
+	buffer = buffer;
+	datasize = datasize;
+	offset = offset;
 	return 0;
 }
 int slim32_getfree(fs_t *fs) {
+	fs = fs;
 	return 0;
 }
  
