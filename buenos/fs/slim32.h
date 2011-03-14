@@ -16,6 +16,12 @@
 #define SLIM32_RECORD_SIZE 32
 #define SLIM32_VOLUMELABEL_SIZE 11
 
+#define SLIM32_SHORT_FILENAME_SIZE 11
+
+#define SLIM32_DIR_BITMASK 0x10
+#define SLIM32_DIR_FLAG 1
+#define SLIM32_DIR_NOT_FLAG 0
+
 fs_t * slim32_init(gbd_t *disk);
 
 int slim32_unmount(fs_t *fs);
