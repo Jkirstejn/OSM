@@ -25,33 +25,42 @@
 We've made the following assumptions, on which our implementation depends on:
 
 \begin{itemize}
-\item It is not possible to open more than one file system at a time on the
-disk, in other words we avoid partitions.
+\item There can't be more than one file system at a time on the disk, in other
+words we avoid partitions.
 \item We don't perform any consistency checks of the file system, as we assume
 that it's always consistent.
 \item We assume we won't have to implement functionality to search through
 directories, as the buenos kernel doesn't support the use of different
-directories. Furthermore there aren't any function to create directories.
+directories. Furthermore there aren't any system calls to create directories.
 \end{itemize}
 
 \section{Design decisions}
-bla bla bla 
+We've removed the patting of the fat32 filesystem volume name, to make it makes
+more sense.  
 
 \section{Important observations}
-bla bla? Bla bla bla
+Unfortunately we didn't make it to implement some of the functions. The system
+can however mount a fat32 file system and unmount it. We've made an effort to
+try to implement the syscall\_open function, but something was wrong with the
+cluster addressing...
 
 \section{List of changes}
-bla bla bla
 
 \begin{itemize}
 \item buenos/proc/syscall.c: System calls trivially implemented.
-\item buenos/fs/filesystems.c: bla
+\item buenos/fs/filesystems.c: Implemented the slim32 system.
 \item buenos/fs/module.mk: Added the slim32.c file to the modules.
-\item buenos/fs/slim32.c, buenos/fs/slim32.h: bla bla bla bla
-\item buenos/yams.conf: bla bla bla bla bla
-\item buenos/compile: bla bla bla bla bla bla
-\item buenos/tests/fs\_open.c: bla bla bla bla bla bla bla 
+\item buenos/fs/slim32.c, buenos/fs/slim32.h: Tried to implement the file
+system.
+\item buenos/yams.conf: Disk section added (commented out in the handin).
+\item buenos/compile: Added tests/fs\_open. Now also writes new test file to
+the store.file hard drive.
+\item buenos/tests/fs\_open.c: Test file for the syscall\_open file. 
 \end{itemize}
+
+\section{Time spent}
+
+We have approximately spent 17-20 hours per person.
 
 \end{document}
 
