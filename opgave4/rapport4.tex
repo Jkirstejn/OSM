@@ -29,8 +29,9 @@ We've made the following assumptions, on which our implementation depends on:
 disk, in other words we avoid partitions.
 \item We don't perform any consistency checks of the file system, as we assume
 that it's always consistent.
-
-\item lawl
+\item We assume we won't have to implement functionality to search through
+directories, as the buenos kernel doesn't support the use of different
+directories. Furthermore there aren't any function to create directories.
 \end{itemize}
 
 \section{Design decisions}
@@ -46,8 +47,7 @@ bla bla bla
 \item buenos/proc/syscall.c: System calls trivially implemented.
 \item buenos/fs/filesystems.c: bla
 \item buenos/fs/module.mk: Added the slim32.c file to the modules.
-\item buenos/fs/slim32.c: bla bla bla
-\item buenos/fs/slim32.h: bla bla bla bla
+\item buenos/fs/slim32.c, buenos/fs/slim32.h: bla bla bla bla
 \item buenos/yams.conf: bla bla bla bla bla
 \item buenos/compile: bla bla bla bla bla bla
 \item buenos/tests/fs\_open.c: bla bla bla bla bla bla bla 
