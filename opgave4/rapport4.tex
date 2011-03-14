@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{qtree}
+\usepackage{verbatim}
+\usepackage{array}
+
+\title{Operativsystemer of multiprogrammering \\ Handin 4}
+\author{Malte Stær Nissen and\\
+        Jacob Daniel Kirstejn Hansen}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Overall assumptions}
+We've made the following assumptions, on which our implementation depends on:
+
+\begin{itemize}
+\item It is not possible to open more than one file system at a time on the
+disk, in other words we avoid partitions.
+\item We don't perform any consistency checks of the file system, as we assume
+that it's always consistent.
+
+\item lawl
+\end{itemize}
+
+\section{Design decisions}
+bla bla bla 
+
+\section{Important observations}
+bla bla? Bla bla bla
+
+\section{List of changes}
+bla bla bla
+
+\begin{itemize}
+\item buenos/proc/syscall.c: System calls trivially implemented.
+\item buenos/fs/filesystems.c: bla
+\item buenos/fs/module.mk: Added the slim32.c file to the modules.
+\item buenos/fs/slim32.c: bla bla bla
+\item buenos/fs/slim32.h: bla bla bla bla
+\item buenos/yams.conf: bla bla bla bla bla
+\item buenos/compile: bla bla bla bla bla bla
+\item buenos/tests/fs\_open.c: bla bla bla bla bla bla bla 
+\end{itemize}
+
+\end{document}
+
