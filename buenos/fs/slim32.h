@@ -12,6 +12,10 @@
 #define SLIM32_NUMBER_OF_FATS 2
 #define SLIM32_SIGNATURE 0xAA55
 
+/* Define size of a record in FAT32 */
+#define SLIM32_RECORD_SIZE 32
+#define SLIM32_VOLUMELABEL_SIZE 11
+
 fs_t * slim32_init(gbd_t *disk);
 
 int slim32_unmount(fs_t *fs);
