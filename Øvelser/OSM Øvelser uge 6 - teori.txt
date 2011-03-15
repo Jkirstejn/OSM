@@ -1,0 +1,94 @@
+9.2:
+9EF = Erstat 9 med 0
+
+111 = Erstat 1 med 2
+
+700 = Page not in memory, allokerer en frame 'D'
+
+0FF = Page not in memory, allokerer en frame 'E'
+
+9.4:
+
+a:
+Ville ske lidt, men ville ikke være super mærkbart.
+
+b:
+Nej vi ville have mere plads at skrive på, men ville stadig lave de samme
+operationer. Flaskehalsen er hvor mange pages vi har plads til i vores
+hukommelse.
+
+c:
+Det er svært at udtale sig om. Afhænger af de programmer vi arbejder med.
+
+d:
+Det er svært at udtale sig om. Afhænger af de programmer vi arbejder med.
+
+e:
+Hjælper meget.
+
+f:
+Ville hjælpe
+
+g:
+Ville hjælpe
+
+h:
+Kommer an på hvordan man udnytter de pages der er blevet tildelt.
+
+9.6:
+Noget med at regne. Det gider vi ikke...
+
+9.9:
+1, 2, 3, 4, 2, 1, 5, 6, 2, 1, 2, 3, 7, 6, 3, 2, 1, 2, 3, 6.
+
+4 forskellige frames vi har arbejde med
+
+(nedad og så hendad)
+
+LRU replacement:
+(1,1) ->
+(2,2) ->
+(3,3) ->
+(4,4) ->
+
+First in, first out replacement:
+
+Optimal replacement:
+
+9.16:
+
+b er hurtigst, fordi den gennemgår den sekvensielt, modsat a der hopper rundt i
+hukommelsen
+
+50 pagefejl i b
+
+50*100 i a
+
+9.22:
+Hopper elegant hen over regneopgaverne igen...
+
+9.24:
+
+a:
+Godt fordi vi ikke hopper rundt i forskellige pages.
+
+b:
+Hopper for meget, til at være god til paging.
+
+c:
+God fordi den er sekventiel
+
+d:
+Den er ikke så god i starten, bliver bedre senere, men frakastes alligevel.
+
+e:
+Kan være både god og dårlig, kommer helt an på programmet.
+
+f:
+vektoroperationer = se på et array (en vektor i matematik) lav en operation på
+denne og smæk den over i et nyt array. Kan også gemme til samme array. Så denne
+er god til paging.
+
+g:
+Ikke god, da den benytter pegere der gør det muligt at hoppe alt for meget
+rundt i hukommelsen.
