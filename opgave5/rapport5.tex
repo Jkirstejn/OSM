@@ -39,6 +39,10 @@ freed pages.
 
 
 \section{How it should have been implemented}
+Naturally it would make more sense to check the virtual memory for fragments of
+free memory before blindly allocating atleast 1 more page each time we call
+\texttt{malloc}. As a consequence of this, \texttt{free} shouldn't free an
+entire page but only the entry block starting at the argument address.
 
 \end{document}
 
