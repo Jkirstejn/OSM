@@ -50,6 +50,13 @@ free memory before blindly allocating atleast 1 more page each time we call
 \texttt{malloc}. As a consequence of this, \texttt{free} shouldn't free an
 entire page but only the entry block starting at the argument address.
 
+\section{List of changes}
+\begin{itemize}
+	\item proc/exception.c, kernel/exception.c: Handling of exceptions EXCEPTION_TLBM, EXCEPTION_TLBL & EXCEPTION_TLBS forwarded to tlb_modified_exception(), tlb_load_exception() & tlb_store_exception().
+	\iem vm/tlb.c: tlb_modified_exception(), tlb_load_exception() & tlb_store_exception() implemented along with the additional function tlb_lookup_pagetable to perform lookup in a pagetable. 
+	\item thread.h, thread.c: Functions to handle allocation and freeing of memory pages implemented. Begun to implement malloc and free but didn't succeed. Constants defined in thread.h and dummy alignment for padding a thread entry to 64 bytes corrected.
+	\item vm/vm.c: vm_unmap() implemented.
+\end{itemize]
 
 \end{document}
 
