@@ -38,20 +38,73 @@
 #include "kernel/assert.h"
 #include "vm/tlb.h"
 #include "vm/pagetable.h"
+#include "kernel/exception.h"
+#include "kernel/thread.h"
+//#include "kernel/thread.c"
+
+static void print_tlb_debug(void)
+{
+   tlb_exception_state_t tes;
+   _tlb_get_exception_state(&tes);
+
+   kprintf("TLB exception. Details:\n"
+           "Failed Virtual Address: 0x%8.8x\n"
+           "Virtual Page Number:    0x%8.8x\n"
+           "ASID (Thread number):   %d\n",
+           tes.badvaddr, tes.badvpn2, tes.asid);
+}
 
 void tlb_modified_exception(void)
 {
-    KERNEL_PANIC("Unhandled TLB modified exception");
+	print_tlb_debug();
+    KERNEL_PANIC("TLB modified exception: Tried to write to an non-writeable address");
 }
 
+/**
+ * Perform a lookup of the virtual page, that caused the exception,
+ * in the thread's pagetable. If found, the entry is written to the
+ * TLB and 0 is return. Otherwise -1 is returned.
+ **/
+int tlb_lookup_pagetable(void) {
+	tlb_exception_state_t tes;
+	_tlb_get_exception_state(&tes);
+	thread_table_t *thread = thread_get_thread_entry(tes.asid);
+	
+	int i;
+	for(i = 0; i < PAGETABLE_ENTRIES; i++) {
+		if (thread->pagetable->entries[i].VPN2 == tes.badvpn2) {
+			/* Virtual address page found in the thread's pagetable
+			 * Write entry to TLB and return 0
+			 */
+			_tlb_write_random(&thread->pagetable->entries[i]);
+			return 0;
+		}
+	}
+	return -1;
+}
+
+/**
+ * TLB load exception.
+ * Perform a tlb_lookup_pagetable and kernel panic if not successful
+ **/
 void tlb_load_exception(void)
 {
-    KERNEL_PANIC("Unhandled TLB load exception");
+	if (!tlb_lookup_pagetable()) {
+		print_tlb_debug();
+		KERNEL_PANIC("TLB load exception: Address to non-allocated space");
+	}
 }
 
+/**
+ * TLB load exception.
+ * Perform a tlb_lookup_pagetable and kernel panic if not successful
+ **/
 void tlb_store_exception(void)
 {
-    KERNEL_PANIC("Unhandled TLB store exception");
+	if (!tlb_lookup_pagetable()) {
+		print_tlb_debug();
+		KERNEL_PANIC("Unhandled TLB store exception");
+	}
 }
 
 /**

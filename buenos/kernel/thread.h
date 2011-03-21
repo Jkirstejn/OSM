@@ -57,28 +57,37 @@ typedef enum {
 
 /* thread table data structure */
 typedef struct {
-    /* context save areas context and user_context*/
-    /* for interrupts */
-    context_t *context;
-    /* for traps (syscalls), if applicable */
-    context_t *user_context;
+	/* context save areas context and user_context*/
+	/* for interrupts */
+	context_t *context;
+	/* for traps (syscalls), if applicable */
+	context_t *user_context;
 
-    /* thread state */
-    thread_state_t state;
-    /* which resource this thread sleeps on (0 for none) */
-    uint32_t sleeps_on;
-    /* pointer to this thread's pagetable */
-    pagetable_t *pagetable;
+	/* thread state */
+	thread_state_t state;
+	/* which resource this thread sleeps on (0 for none) */
+	uint32_t sleeps_on;
+	/* pointer to this thread's pagetable */
+	pagetable_t *pagetable;
 
-    /* PID. Currently not used for anything, but might be useful
-       if process table is implemented. */
-    process_id_t process_id;
-    /* pointer to the next thread in list (<0 = end of list) */
-    TID_t next; 
+	/* PID. Currently not used for anything, but might be useful
+	   if process table is implemented. */
+	process_id_t process_id;
+	/* pointer to the next thread in list (<0 = end of list) */
+	TID_t next; 
 
-    /* pad to 64 bytes */
-    uint32_t dummy_alignment_fill[9]; 
+	/* pad to 64 bytes */
+	uint32_t dummy_alignment_fill[9]; 
+
+	/* Heap */
+	heap_t heap;
+
 } thread_table_t;
+
+typedef struct {
+	uint32_t *start;
+	unsigned int size;
+} heap_t;
 
 /* function prototypes */
 void thread_table_init(void);

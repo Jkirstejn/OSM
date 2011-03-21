@@ -21,6 +21,8 @@
 #define SLIM32_DIR_FLAG 1
 #define SLIM32_DIR_NOT_FLAG 0
 
+#define SLIM32_ATTR_VOLUME_BITMASK 0x8
+
 fs_t * slim32_init(gbd_t *disk);
 
 int slim32_unmount(fs_t *fs);

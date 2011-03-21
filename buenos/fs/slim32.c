@@ -90,7 +90,7 @@ fs_t * slim32_init(gbd_t *disk) {
 	addr = ADDR_PHYS_TO_KERNEL(addr);	// transform to vm address
 	
     /* Assert that one page is enough */
-    KERNEL_ASSERT(PAGE_SIZE >= (sizeof(slim32_t) + sizeof(fs_t)));
+    KERNEL_ASSERT(PAGE_SIZE >= sizeof(SLIM32_BYTS_PER_SEC) + (sizeof(slim32_t) + sizeof(fs_t)));
 	
 	/* Read header block, and make sure this is tfs drive */
 	req.block = 0;
@@ -114,6 +114,14 @@ fs_t * slim32_init(gbd_t *disk) {
 	FATSz32		= read_32((uint8_t *)(addr + 0x24));
 	RootClus	= read_32((uint8_t *)(addr + 0x2C));
 	Signature	= read_16((uint8_t *)(addr + 0x1FE));
+	
+	kprintf("%i\n", BytsPerSec);
+	kprintf("%i\n", SecPerClus);
+	kprintf("%i\n", RsvdSecCnt);
+	kprintf("%i\n", FATSz32);
+	kprintf("%i\n", NumFATs);
+	
+	
 	/* Check if Bytes Per Sector is set correct */
 	if(BytsPerSec != SLIM32_BYTS_PER_SEC) {
 		pagepool_free_phys_page(ADDR_KERNEL_TO_PHYS(addr));
@@ -160,6 +168,8 @@ fs_t * slim32_init(gbd_t *disk) {
 	
 	fs->internal = (void *)slim32;
 	slim32->disk = disk;
+	slim32->buffer = (uint32_t *)(addr + sizeof(fs_t) + sizeof(slim32_t));
+	kprintf("Buffer: %p\n", slim32->buffer);
 	
 	/* Set up pointers to all functions for vfs to use */
 	fs->unmount	= slim32_unmount;
@@ -179,36 +189,49 @@ int slim32_unmount(fs_t *fs) {
 	return VFS_OK;
 }
 
+int record_is_volume_id(uint8_t *attrib) {
+	int test = (SLIM32_ATTR_VOLUME_BITMASK & *attrib);
+	kprintf("Bitmaske: %i\nAttrib: %i\ntest: %i\n", SLIM32_ATTR_VOLUME_BITMASK, *attrib, test);
+	if (test == SLIM32_ATTR_VOLUME_BITMASK) {
+		return 0;
+	}
+	return 1;
+}
+
 int search_cluster(fs_t *fs, uint32_t *sector_addr, char *filename) {
-	kprintf("Sektor adresse: %i\n", (unsigned int)(sector_addr));
 	slim32_t *slim32;
 	slim32 = (slim32_t *)fs->internal;
 	
 	uint32_t *offset = sector_addr;
 	unsigned int i;
+	
 	/* Calculate number of records before we have to find the next cluster */
 	unsigned int records_per_cluster = slim32->BytsPerSec / SLIM32_RECORD_SIZE * slim32->SecPerClus;
-
+	kprintf("Offset: %i\n", *offset);
 	/* Check the given cluster for the file */
-	for(i = 0; (offset[0] != 0) && (records_per_cluster > i); i++) {
-		offset = (uint32_t *)(((unsigned int)sector_addr) + (records_per_cluster*i));
+	for(i = 0; (*(uint8_t *)(offset) != 0) && (records_per_cluster > i); i++) {
+		kprintf("I: %i\n", i);
+		offset = (uint32_t *)((sector_addr) + (SLIM32_RECORD_SIZE*i));
 		/* Check if entry is used */
-		if (offset[0] != 0xE5) {
+		char *name = "";
+		stringcopy(name, (char *)offset, SLIM32_SHORT_FILENAME_SIZE);
+		kprintf("Navn: [%s]\n", name);
+		if (*(uint8_t *)(offset) != 0xE5) {
 			//uint8_t *attrib_byte = (uint8_t *)(&offset[SLIM32_SHORT_FILENAME_SIZE]);
-			char *name = "";
-			stringcopy(name, (char *)offset, SLIM32_SHORT_FILENAME_SIZE);
-			int x;
-			for(x = 0; offset[x] != '\0' ;x++) {
-				kprintf("\t%i\n", (int)offset[x]);
-			}
-			kprintf("\n");
 			/* Perform comparison between record and desired filename */
-			if (stringcmp(filename, (char *)offset) == 0) {
-				return offset[0];
+			int x;
+			for(x = 0; x < 32; x++) {
+				kprintf("Byte:\t%i\tIndhold:\t%i\n", x, *(uint8_t *)(offset + x));
+			}
+			kprintf("End of record\n");
+			if ((stringcmp(filename, (char *)offset) == 0) ||
+				(record_is_volume_id((uint8_t *)(offset + SLIM32_SHORT_FILENAME_SIZE + 5)) == 0)) {
+				return *offset;
 			}
 		}
 	}
 	if (offset[0] == 0) {
+		kprintf("End of directory\n");
 		return VFS_NOT_FOUND;
 	} else {
 		return VFS_NOT_FOUND;
@@ -222,19 +245,18 @@ int search_for_file(fs_t *fs, char *filename) {
 	gbd_request_t req;
 	int r;
 	
-	uint32_t addr = slim32->cluster_begin_lba;
-	kprintf("Cluster begin: %i\n", addr);
-	
 	/* Read root block from disk */
-	req.block	= slim32->cluster_begin_lba;
-	req.buf		= ADDR_KERNEL_TO_PHYS(addr); // Skal måske være addr?
+	uint32_t lba_addr = slim32->cluster_begin_lba + (slim32->root_dir_first_cluster - 2) * slim32->sectors_per_cluster;
+	kprintf("LBA: %i\n", lba_addr);
+	req.block	= lba_addr;
+	req.buf		= ADDR_KERNEL_TO_PHYS((uint32_t) slim32->buffer);
 	req.sem		= NULL;
 	r = slim32->disk->read_block(slim32->disk, &req);
 	if (r == 0) {
 		kprintf("Fejl for helvede! Din NOOB!\n");
 		return VFS_ERROR;
 	}
-	return search_cluster(fs, &addr, filename);
+	return search_cluster(fs, slim32->buffer, filename);
 }
 
 int slim32_open(fs_t *fs, char *filename) {
