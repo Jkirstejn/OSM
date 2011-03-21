@@ -21,16 +21,24 @@
 \tableofcontents
 \newpage
 
-\section{Help functions}
-
-Har lavet en tlb\_lookup\_pagetable inde i tlb.c, der itererer gennem vores
-pagetable indtil den
-
 \section{Design decisions}
+We're using \_tlb\_write\_random in the tlb\_lookup\_pagetable function,
+instead of actually implementing a strategy to decide which entry should be
+overwritten. To improve the performance of the operating system, one would
+among other things implement a this strategy.
 
-Using \_tlb\_write\_random in the tlb\_lookup\_pagetable function, instead of
-actually implementing a strategy to decide which entry should be overwritten.
+\section{Assumptions}
+We assume that whenever we make a call to malloc, the size of the memory we
+wish to allocate is never greater than the size of a page (4096 bytes). By
+making this a assumption we simply need to free the entire page of an entry.
+We're not handling fragmentation, but allocate new memory regardless of already
+freed pages.
 
+\section{How we would have implemented it}
+
+
+
+\section{How it should have been implemented}
 
 \end{document}
 
