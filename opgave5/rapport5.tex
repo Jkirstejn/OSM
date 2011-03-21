@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{qtree}
+\usepackage{verbatim}
+\usepackage{array}
+
+\title{Operativsystemer og multiprogrammering \\ Handin 5}
+\author{Malte Stær Nissen and \\
+        Jacob Daniel Kirstejn Hansen}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Help functions}
+
+Har lavet en tlb\_lookup\_pagetable inde i tlb.c, der itererer gennem vores
+pagetable indtil den
+
+\section{Design decisions}
+
+Using \_tlb\_write\_random in the tlb\_lookup\_pagetable function, instead of
+actually implementing a strategy to decide which entry should be overwritten.
+
+
+\end{document}
+
