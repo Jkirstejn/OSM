@@ -218,10 +218,29 @@ void vm_map(pagetable_t *pagetable,
 
 void vm_unmap(pagetable_t *pagetable, uint32_t vaddr)
 {
-    pagetable = pagetable;
-    vaddr     = vaddr;
-    
-    /* Not implemented */
+	unsigned int i;
+	for(i=0; i<pagetable->valid_count; i++) {
+		if(pagetable->entries[i].VPN2 == (vaddr >> 13)) {
+			/* TLB has separate mappings for even and odd 
+			virtual pages. Let's handle them separately here,
+			and we have much more fun when updating the TLB later.*/
+			if(ADDR_IS_ON_EVEN_PAGE(vaddr)) {
+				/* Check if even entry is already invalid */
+				if (pagetable->entries[i].V0 == 0) {
+					KERNEL_PANIC("Tried to unmap already unmapped page");
+				} else {
+					pagetable->entries[i].V0 = 0;
+				}
+			} else {
+				/* Check if uneven entry is already invalid */
+				if (pagetable->entries[i].V1 == 0) {
+					KERNEL_PANIC("Tried to unmap already unmapped page");
+				} else {
+					pagetable->entries[i].V1 = 0;
+				}
+			}
+		}
+	}
 }
 
 /**

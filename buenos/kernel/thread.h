@@ -55,6 +55,27 @@ typedef enum {
 
 #define IDLE_THREAD_TID 0
 
+#define HEAP_START 0xE0000000
+#define HEAP_SIZE PAGE_SIZE / 8 * PAGETABLE_ENTRIES
+#define MAGIC_DIRTY 1
+#define MAGIC_CLEAN 0
+
+#define MIN(arg1,arg2) ((arg1) > (arg2) ? (arg2) : (arg1))
+#define MAX(arg1,arg2) ((arg1) > (arg2) ? (arg1) : (arg2))
+
+/* Heap structure */
+
+typedef struct heap_entry {
+	size_t size;
+	struct heap_entry *next;
+} heap_entry_t;
+
+typedef struct {
+	uint32_t start;
+	heap_entry_t *list;
+	unsigned int size;
+} heap_t;
+
 /* thread table data structure */
 typedef struct {
 	/* context save areas context and user_context*/
@@ -77,17 +98,12 @@ typedef struct {
 	TID_t next; 
 
 	/* pad to 64 bytes */
-	uint32_t dummy_alignment_fill[9]; 
+	uint32_t dummy_alignment_fill[8]; 
 
 	/* Heap */
 	heap_t heap;
 
 } thread_table_t;
-
-typedef struct {
-	uint32_t *start;
-	unsigned int size;
-} heap_t;
 
 /* function prototypes */
 void thread_table_init(void);

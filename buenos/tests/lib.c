@@ -680,47 +680,52 @@ byte heap[HEAP_SIZE];
    first. */
 void heap_init()
 {
-    free_list = (free_block_t*) heap;
-    free_list->size = HEAP_SIZE;
-    free_list->next = NULL;
+	free_list		= (free_block_t *)heap;
+	free_list->size	= HEAP_SIZE;
+	free_list->next	= NULL;
 }
 
 /* Return a block of at least size bytes (removing it from the free
    list in the process), or NULL if no such block can be found.  */
 void *malloc(size_t size)
 {
-    free_block_t *block;
-    free_block_t **prev_p; /* Previous link so we can remove an element */
+	free_block_t *block;
+	free_block_t **prev_p; /* Previous link so we can remove an element */
 
-    if (size == 0) {
-        return NULL;
-    }
+	if (size == 0) {
+		return NULL;
+	}
 
-    /* Ensure block is big enough for bookkeeping. */
-    size=MAX(MIN_ALLOC_SIZE,size);
+	/* Ensure block is big enough for bookkeeping. */
+	size = MAX(MIN_ALLOC_SIZE, size);
 
-    /* Iterate through list of free blocks, using the first that is
-       big enough for the request. */
-    for (block = free_list, prev_p = &free_list;
-         block;
-         prev_p = &(block->next), block = block->next) {
-        if (block->size - size - sizeof(size_t) >= MIN_ALLOC_SIZE+sizeof(size_t)) {
-            /* Block is too big, but can be split. */
-            block->size -= size+sizeof(size_t);
-            free_block_t *new_block =
-                (free_block_t*)(((byte*)block)+block->size);
-            new_block->size = size+sizeof(size_t);
-            return ((byte*)new_block)+sizeof(size_t);
-        } else if (block->size >= size + sizeof(size_t)) {
-            /* Block is big enough, but not so big that we can split
-               it, so just return it */
-            *prev_p = block->next;
-            return ((byte*)block)+sizeof(size_t);
-        }
-        /* Else, check the next block. */
-    }
-    /* No block was big enough. */
-    return NULL;
+	/* Iterate through list of free blocks, using the first that is
+	 * big enough for the request. */
+	for (block = free_list, prev_p = &free_list;
+		 block;
+		 prev_p = &(block->next), block = block->next) {
+		if (block->size - size - sizeof(size_t) >= MIN_ALLOC_SIZE + sizeof(size_t)) {
+
+			/* Block is too big, but can be split. */
+			block->size -= size+sizeof(size_t);
+			
+			free_block_t *new_block = (free_block_t *)(((byte *)block)+block->size);
+			
+			new_block->size = size+sizeof(size_t);
+			
+			return ((byte*)new_block)+sizeof(size_t);
+			
+		} else if (block->size >= size + sizeof(size_t)) {
+		
+			/* Block is big enough, but not so big that we can split
+			it, so just return it */
+			*prev_p = block->next;
+			return ((byte*)block)+sizeof(size_t);
+		}
+		/* Else, check the next block. */
+	}
+	/* No block was big enough. */
+	return NULL;
 }
 
 /* Return the block pointed to by ptr to the free pool. */

@@ -43,6 +43,9 @@
 #include "kernel/config.h"
 #include "kernel/interrupt.h"
 #include "kernel/idle.h"
+#include "drivers/yams.h"
+#include "vm/vm.h"
+#include "vm/pagepool.h"
 
 /** @name Thread library
  *
@@ -63,6 +66,90 @@ char thread_stack_areas[CONFIG_THREAD_STACKSIZE * CONFIG_MAX_THREADS];
 /* Import running thread id table from scheduler */
 extern TID_t scheduler_current_thread[CONFIG_MAX_CPUS];
 
+/**
+ * Allocate a page in the heap
+ **/
+void heap_allocate_page() {
+	/* Get current thread entry and save the pointer in variable thread */
+	thread_table_t *thread = thread_get_current_thread_entry();
+	
+	/* Calculate virtual address of new page */
+	uint32_t vaddr = thread->heap.start + thread->heap.size;
+	
+	/* Map the virtual address to a new physical page */
+	vm_map(thread->pagetable, pagepool_get_phys_page(), vaddr, MAGIC_DIRTY);
+	
+	/* Increment the heap size by the size of a page */
+	thread->heap.size += PAGE_SIZE;
+}
+
+/**
+ * Free an already allocated page
+ *
+ * @param pointer pointer to allocated memory to be freed
+ **/
+void heap_free_page(void *pointer) {
+	/* Get current thread entry and save the pointer in variable thread */
+	thread_table_t *thread = thread_get_current_thread_entry();
+	
+	/* Page align pointer */
+	uint32_t ptr = (uint32_t)pointer & PAGE_SIZE_MASK;
+	
+	/* Free the physical page */
+	pagepool_free_phys_page(ADDR_KERNEL_TO_PHYS((uint32_t)pointer));
+	
+	/* Unmap virtual memory in the thread's pagetable */
+	vm_unmap(thread->pagetable, ptr);
+}
+
+
+
+void heap_init(heap_t *heap) {
+    heap->start = HEAP_START;
+    heap->list = NULL;
+    heap->size  = 0;
+}
+
+/**
+ * Heap structure for allocated space
+ **/
+void *malloc(int size) {
+	heap_t *heap = &thread_get_current_thread_entry()->heap;
+	heap_entry_t entry;
+	
+	/* Number of pages to be allocated */
+	unsigned int pages = (size / PAGE_SIZE + 1);
+	
+	/* Set up entry and entry list list */
+	entry.size = pages * PAGE_SIZE;
+	if (heap->list == NULL) {
+		heap->list = &entry;
+	} else {
+		heap_entry_t *block = heap->list;
+		/* Run through list till the end */
+		while(block->next != NULL) {
+			block = block->next;
+		}
+		
+		/* Add entry to the end of the list */
+		block->next = &entry;
+	}
+	
+	/* Allocate the required number of pages */
+	unsigned int i;
+	for(i = 0; i < pages; i++) {
+		heap_allocate_page();
+	}
+	
+	/* Add the memory to the heap and return pointer to the beginning */
+	heap->size += entry.size;
+	return (void *)(heap->start + heap->size - entry.size);
+}
+
+void free(void *ptr) {
+	ptr = ptr;
+}
+
 /** Initializes the threading system. Does this by setting all thread
  *  table entry states to THREAD_FREE. Called only once before any
  *  threads are created.
@@ -82,6 +169,8 @@ void thread_table_init(void)
 
     /* Init all entries to 'NULL' */
     for (i=0; i<CONFIG_MAX_THREADS; i++) {
+    heap_t heap;
+    heap_init(&heap);
 	/* Set context pointers to the top of the stack*/
 	thread_table[i].context      = (context_t *) (thread_stack_areas
 	    +CONFIG_THREAD_STACKSIZE*i + CONFIG_THREAD_STACKSIZE - 
@@ -90,8 +179,9 @@ void thread_table_init(void)
 	thread_table[i].state        = THREAD_FREE;
 	thread_table[i].sleeps_on    = 0;
 	thread_table[i].pagetable    = NULL;
-	thread_table[i].process_id   = -1;	
-	thread_table[i].next         = -1;	
+	thread_table[i].process_id   = -1;
+	thread_table[i].next         = -1;
+	thread_table[i].heap         = heap;
     }
 
     thread_table[IDLE_THREAD_TID].context->cpu_regs[MIPS_REGISTER_SP] =
