@@ -34,10 +34,15 @@ making this a assumption we simply need to free the entire page of an entry.
 We're not handling fragmentation, but allocate new memory regardless of already
 freed pages.
 
-
 \section{How we would have implemented it}
-We would've implemented the malloc and free functions by using a simple heap along with a linked list containing information about the size of the different entries. These sizes would've been entire pages so every time you wanted to allocate new memory, at least one new page of 4k would've been allocated at the end of the heap. Likewise we would've freed at least one page every time the free function was called. This would've given quite a fragmented memory, but would be a bit easier to implement than the way it should have been implemented.
-
+We would've implemented the malloc and free functions by using a simple heap
+along with a linked list containing information about the size of the different
+entries. These sizes would've been entire pages so every time you wanted to
+allocate new memory, at least one new page of 4k would've been allocated at the
+end of the heap. Likewise we would've freed at least one page every time the
+free function was called. This would've given quite a fragmented memory, but
+would be a bit easier to implement than the way it should have been
+implemented.
 
 \section{How it should have been implemented}
 Naturally it would make more sense to check the virtual memory for fragments of
